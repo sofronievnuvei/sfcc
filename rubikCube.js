@@ -15,14 +15,12 @@ var maxCount = 45;
 var currentAngle = 90;
 var current_axis = 'w';
 var current_slice = -1;
-var container = null;
+
 // previous clicked cubes...
 var lastCubeClicked = null;
 var myLinks = new Array();
 var scramble_mode = true;
 var current_index = 0;
-var width = 640;
-var height = 480;
 
 
 var cube = 
@@ -353,7 +351,7 @@ function createCube()
 	nCubes = 0;
 	cubes = new Array(n*n*n);
 	
-	var gray_material = new THREE.MeshLambertMaterial({ color: 0x081F2C });
+	var gray_material = new THREE.MeshLambertMaterial({ color: 0x0f0f0fff });
 	var geometry = new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 );
 	for (var k = 0; k < n; k++) 
 	{
@@ -446,53 +444,34 @@ function createCube()
 
 function init() 
 {
-	//camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
-	container = document.getElementById('canvas');
-	width = container.width;
-	height = container.height;
-	camera = new THREE.PerspectiveCamera( 60, width / height, 1, 1000 );
+	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 	camera.position.z = 7;
 	scene = new THREE.Scene();
 	
 	createCube();
 	
-	var angle = 45.0 * 3.14159 / 180.0;
-	var r = new THREE.Matrix4();
-	var axis = new THREE.Vector3(0, 1, 0);
-	r.makeRotationAxis(axis, angle);
-	rotMatrix.multiplyMatrices(r, rotMatrix);
-	
-	
-	renderer = new THREE.WebGLRenderer({canvas: container, preserveDrawingBuffer:true});	// required for readPixels
+	renderer = new THREE.WebGLRenderer({preserveDrawingBuffer:true});	// required for readPixels
 	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setClearColor( 0xffffff, 1);
-
-	renderer.setSize(width, height);	
-	//container.appendChild(renderer.domElement);
 	document.body.appendChild( renderer.domElement );
-	//renderer.setSize( window.innerWidth, window.innerHeight );
-	//document.body.appendChild( renderer.domElement );
 	//
-	container.addEventListener('resize',    onWindowResize,  false);
-	container.addEventListener("mousedown", handleMouseDown, false);
-	container.addEventListener("mouseup",   handleMouseUp,   false);
-	container.addEventListener("mousemove", handleMouseMove, false);
+	window.addEventListener('resize',    onWindowResize,  false);
+	window.addEventListener("mousedown", handleMouseDown, false);
+	window.addEventListener("mouseup",   handleMouseUp,   false);
+	window.addEventListener("mousemove", handleMouseMove, false);
 	// IE9, Chrome, Safari, Opera
-	container.addEventListener("mousewheel", onMouseWheel, false);
+	window.addEventListener("mousewheel", onMouseWheel, false);
 	// Firefox
-	container.addEventListener("DOMMouseScroll", onMouseWheel, false);			
+	window.addEventListener("DOMMouseScroll", onMouseWheel, false);			
 	count = 0;
-	
 }
 
 function onWindowResize() 
 {
-	/*camera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
-	renderer.setSize( window.innerWidth, window.innerHeight );*/
-	camera.aspect = width / height;
-	camera.updateProjectionMatrix();
-	renderer.setSize( width, height );
+	renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function animate() 
@@ -501,7 +480,6 @@ function animate()
 	
 	if (scramble_mode == true)
 	{
-		scene.quaternion.setFromRotationMatrix(rotMatrix);
 		rotate(movements[current_index][0], movements[current_index][1], movements[current_index][2]);
 		if (count == 0)
 		{
@@ -523,10 +501,8 @@ function animate()
 
 function getClickedCube()
 {
-	//var x = (event.clientX / window.innerWidth)  * 2 -1;
-	//var y = ((window.innerHeight-1-event.clientY) / window.innerHeight) * 2 -1;
-	var x = (event.clientX / container.width)  * 2 -1;
-	var y = ((container.height-1-event.clientY) / container.height) * 2 -1;
+	var x = (event.clientX / window.innerWidth)  * 2 -1;
+	var y = ((window.innerHeight-1-event.clientY) / window.innerHeight) * 2 -1;
 
 	var vector = new THREE.Vector3(x, y, 0.5);
 	vector = vector.unproject(camera);
